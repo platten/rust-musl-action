@@ -1,6 +1,6 @@
 # GitHub Action for Rust and MUSL
 
-Action provides an environment with stable Rust 1.50, MUSL and x86_64-unknown-linux-musl target.
+Action provides a build environment with MUSL and x86_64-unknown-linux-musl target.
 
 ## Usage
 
@@ -11,12 +11,12 @@ Example include also the way to upload the final binary as artifact.
 name: Rust-static-build
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 env:
-  CARGO_TERM_COLOR: always
   BUILD_TARGET: x86_64-unknown-linux-musl
+  TOOLCHAIN: stable
   BINARY_NAME: <binary_name>
 jobs:
   build:
@@ -24,13 +24,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build-musl
-      uses: gmiam/rust-musl-action@master
+      uses: platten/rust-musl-action@main
       with:
-        args: cargo build --target $BUILD_TARGET --release
+        args: cargo build --target ${{ env.BUILD_TARGET }} --release
+      env:
+        TOOLCHAIN: ${{ env.TOOLCHAIN }} 
+        TARGET: ${{ env.BUILD_TARGET }} 
     - uses: actions/upload-artifact@v2
       with:
         name: ${{ env.BINARY_NAME }}
-        path: target/x86_64-unknown-linux-musl/release/${{ env.BINARY_NAME }}*
+        path: target/${{ env.BUILD_TARGET }}/release/${{ env.BINARY_NAME }}
 ```
 
 ## License
